@@ -1,0 +1,85 @@
+---
+title: "COSC6323_Exercise_2"
+author: "Rajat Gupta"
+date: "2/06/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Loading the Libraries
+```{r}
+library(tidyverse)
+```
+Loading the dataset and renaming the columns
+```{r}
+btwt<-as_tibble(MASS::birthwt)
+colnames(btwt) <- c("birthwt.below.2500", 
+                       "mother.age",
+                       "mother.weight",
+                       "race",
+                       "mother.smokes",
+                       "previous.prem.labor",
+                       "hypertension",
+                       "uterine.irr",
+                       "physician.visits",
+                       "birthwt.grams")
+```
+Changing into Categorical factors
+```{r}
+btwt <- btwt %>%
+  mutate(race = recode_factor(race, `1` = "white", `2` = "black", `3` = "other")) %>%
+  mutate_at(c("mother.smokes", "hypertension", "uterine.irr", "birthwt.below.2500"),
+            ~ recode_factor(.x, `0` = "no", `1` = "yes"))
+```
+
+1.Compare infants birth weight between smoking and non-smoking mothers
+
+Creating a box plot to futher analyse the features
+```{r}
+ggplot(btwt,aes(x=mother.smokes,y=birthwt.grams))+geom_boxplot()+labs(title ="Comparing the child weight during birth with women smoking status",
+        y="Baby Weight(grams)",x="Smoking")
+```
+From the above boxplot we can say that the median weight of non smoking is higher than 3000 and that of smoking is less than 3000. Also the boxplot of non smoking is more dispersed than the smoking. Now we have to check weather the difference in mean of the non smoking and smoking is statistically significant or not.
+
+Summary wrt smoking
+
+```{r}
+btwt %>%
+  group_by(mother.smokes) %>%
+  summarize(num.obs = n(),
+            mean.birthwt = round(mean(birthwt.grams), 0),
+            sd.birthwt = round(sd(birthwt.grams), 0),
+            se.birthwt = round(sd(birthwt.grams) / sqrt(num.obs), 0))
+```
+Performing t test
+```{r}
+t.test(birthwt.grams ~ mother.smokes, data = btwt)
+```
+
+From the study we find that average birth weigh of baby for non smoking mother's is 3056 gms and for smoking mother's it is 2772 gms. The hypotheses test p-value of 2-sample t test is around 0.007 which is less than 0.05 significance level. Hence we can reject the null hypotheses and state that their is a significant difference between the means. The value of statistics is 2.7299 and 95% confidence interval is (78.575,488.979).
+
+2.compare infants birth weight between agroup of mothers with a presence of uterine irritability and a group of mothers without it
+
+```{r}
+ggplot(btwt,aes(x=uterine.irr,y=birthwt.grams))+geom_boxplot()+labs(title ="Comparing the child weight during birth with uterine irritability status",
+        y="Baby Weight(grams)",x="Uterine irritability")
+```
+From the above boxplot we can see that the median baby weight in non uterine irritability is above 3000 and in case of uterine irritability is around 2500. Also in case of non uterine irritability the data dispersion is more when compare to the uterine irritability. Now using hypotheses tests we have to check weather their is a difference in mean is statically significant or not. 
+
+Summary wrt uterine irritability
+```{r}
+btwt %>%
+  group_by(uterine.irr) %>%
+  summarize(num.obs = n(),
+            mean.birthwt = round(mean(birthwt.grams), 0),
+            sd.birthwt = round(sd(birthwt.grams), 0),
+            se.birthwt = round(sd(birthwt.grams) / sqrt(num.obs), 0))
+```
+Performing t test
+```{r}
+t.test(birthwt.grams ~ uterine.irr, data = btwt)
+```
+From the study we find that average birth weigh of baby for no uterine irritability mother's  is 3031 gms and for uterine irritability mother's  it is 2449 gms. Also from the above hypotheses test we can say that p-value of t-test is around 0.0004 which is less than the 0.05 significance level. Hence we can say that we reject the null hypotheses and their is a significant difference in the mean of the birth weight wrt uterine irritability. The value of t-statistics is 3.8615 and the confidence interval is (275.89,886.65).
