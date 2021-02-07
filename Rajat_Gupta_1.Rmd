@@ -1,0 +1,43 @@
+---
+title: "COSC6323_Exercise_1"
+author: "Rajat Gupta"
+date: "1/30/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+load the ggplot library and the mpg data set
+
+```{r}
+library(ggplot2)
+str(mpg)
+summary(mpg)
+```
+
+Generating the X axis and the Y axis graph
+```{r}
+a<-ggplot(mpg,aes(class,hwy))
+```
+
+Generating the jitter plot(layer 1) and boxplot(layer 2)
+```{r}
+c<-a+geom_jitter(aes(colour=factor(class)))+geom_boxplot()
+```
+
+Adding the main title and X and Y axis titles
+```{r}
+b<-labs(title ="Figure 1. Vehicle type vs Highways miles per galon",
+        y="Highways miles per galon",x="Vehicle type,"~italic(n)~"= 234")
+```
+
+Combing all the code into one plot and adding themes to get the desired plot
+```{r}
+d<-c+b+theme(legend.title = element_blank(),plot.title = element_text(size = 14))
+```
+Generating the desired plot
+```{r}
+d
+```
